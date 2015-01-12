@@ -270,6 +270,13 @@ def rendering(self):
     """ドラゴンの三角形をレンダリングする。"""
     if DEBUG: print __name__, self.rendering.__doc__
 
+    glBegin(GL_TRIANGLES)
+    glNormal3fv(self._normal_unit_vector)
+    glVertex3fv(self._vertex1)
+    glVertex3fv(self._vertex2)
+    glVertex3fv(self._vertex3)
+    glEnd()
+
     return
 
 
