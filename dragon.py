@@ -47,14 +47,13 @@ class DragonModel(object):
                 if first_string == "number_of_triangles":
                     number_of_triangles = int(a_list[1])
                 if first_string == "end_header":
+                    get_tokens = (lambda file: file.readline().split())
                     for n_th in range(number_of_vertexes):
-                        if (n_th + 1) % 10 == 0: print n_th
-                        else: print n_th,
-                        print
+                        a_list = get_tokens(a_file)
+                        print a_list
                     for n_th in range(number_of_triangles):
-                        if (n_th + 1) % 10 == 0: print n_th
-                        else: print n_th,
-                        print
+                        a_list = get_tokens(a_file)
+                        print a_list
 
         return
 
