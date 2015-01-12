@@ -97,6 +97,11 @@ class DragonView(object):
         """OpenGLを再形成する。"""
         if TRACE: print __name__, self.reshape.__doc__
 
+        self._width = width
+        self._height = height
+
+        glViewport(0, 0, width, height)
+
         return
 
 
@@ -157,7 +162,6 @@ def main():
 
     a_model = DragonModel()
     a_model.open()
-
     return 0
 
 
