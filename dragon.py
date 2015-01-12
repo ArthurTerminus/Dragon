@@ -43,17 +43,20 @@ class DragonModel(object):
                 if len(a_list) == 0: continue
                 first_string = a_list[0]
                 if first_string == "number_of_vertexes":
-                      number_of_vertexes = int(a_list[1])
+                    number_of_vertexes = int(a_list[1])
                 if first_string == "number_of_triangles":
                     number_of_triangles = int(a_list[1])
                 if first_string == "end_header":
                     get_tokens = (lambda file: file.readline().split())
+                    collection_of_vertexes = []
                     for n_th in range(number_of_vertexes):
                         a_list = get_tokens(a_file)
-                        print a_list
+                        a_vertex = map(float, a_list[0:3])
+                        collection_of_vertexes.append(a_vertex)
+                        #print collection_of_vertexes
                     for n_th in range(number_of_triangles):
                         a_list = get_tokens(a_file)
-                        print a_list
+                        #print a_list
 
         return
 
