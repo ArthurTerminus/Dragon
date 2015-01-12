@@ -1,4 +1,4 @@
-# ! /usr/bin/env python
+#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import sys
@@ -42,6 +42,8 @@ class DragonModel(object):
 
         self._view = DragonView(self)
 
+        glutMainLoop()
+
         return
 
     def rendering(self):
@@ -65,6 +67,23 @@ class DragonView(object):
         self._angle_z = 0.0
         self._width = 400
         self._height = 400
+
+        glutInit(sys.argv)
+        glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
+        glutInitWindowPosition(100, 100)
+        glutInitWindowSize(self._width, self._height)
+        glutCreateWindow("Dragon")
+
+        glutDisplayFunc(self.display)
+        glutReshapeFunc(self.reshape)
+        glutKeyboardFunc(self._controller.keyboard)
+        glutMouseFunc(self._controller.mouse)
+        glutMotionFunc(self._controller.motion)
+
+        glEnable(GL_COLOR_MATERIAL)
+        glEnable(GL_DEPTH_TEST)
+        glDisable(GL_CULL_FACE)
+        glEnable(GL_NORMALIZE)
 
         return
 
@@ -137,7 +156,7 @@ def main():
     if TRACE: print __name__, main.__doc__
 
     a_model = DragonModel()
-    a_model .open()
+    a_model.open()
 
     return 0
 
