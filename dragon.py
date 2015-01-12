@@ -148,11 +148,33 @@ class DragonController(object):
         """マウスボタンを押下しながらの移動を処理する。"""
         if TRACE: print __name__, self.motion.__doc__
 
+        print "motion at (" + str(x) + ", " + str(y) + ")"
+
         return
 
     def mouse(self, button, state, x, y):
         """マウスボタンを処理する。"""
         if TRACE: print __name__, self.mouse.__doc__
+
+        if button == GLUT_LEFT_BUTTON:
+            print "left",
+        elif button == GLUT_MIDDLE_BUTTON:
+            print "middle"
+        elif button == GLUT_RIGHT_BUTTON:
+            print "right",
+        else:
+            pass
+
+        print "button is",
+
+        if state == GLUT_DOWN:
+            print "down",
+        elif state == GLUT_UP:
+            print "up",
+        else:
+            pass
+
+        print "at (" + str(x) + ", " + str(y) + ")"
 
         return
 
