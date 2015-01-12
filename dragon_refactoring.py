@@ -82,7 +82,7 @@ class OpenGLModel(object):
 
 
 class OpenGLView(object):
-    """ビュー。"""
+    """OpenGLビュー。"""
 
     window_postion = [100, 100]
 
@@ -215,7 +215,7 @@ class OpenGLController(object):
     """OpenGLコントローラ。"""
 
     def __init__(self, a_view):
-        """コントローラのコンストラクタ。"""
+        """OpenGLコントローラのコンストラクタ。"""
         if TRACE: print __name__, self.__init__.__doc__
 
         self._model = a_view._model
@@ -259,7 +259,7 @@ class OpenGLController(object):
         if key == 'S':
             self._model._fovy -= 1.0
 
-        glutPostRedisplay()
+        self._view.display()  # glutPostRedisplay()
 
         return
 
@@ -298,13 +298,42 @@ class OpenGLController(object):
         return
 
 
-class OpenGLTriangle(object):
+class OpenGLObject(object):
+    """OpenGLオブジェクト。"""
+
+    def __init__(self):
+        """OpenGLオブジェクトのコンストラクタ。"""
+        if DEBUG: print __name__, self.__init__.__doc__
+
+        self._rgb = [1.0, 1.0, 1.0]
+
+        return
+
+    def rendering(self):
+        """OpenGLオブジェクトをレンダリングする。"""
+        if DEBUG: print __name__, self.rendering.__doc__
+
+        glColor4d(self._rgb[0], self._rgb[1], self._rgb[2], 1.0)
+
+        return
+
+    def rgb(self, red, green, blue):
+        """OpenGLオブジェクトの色を設定する。"""
+        if DEBUG: print __name__, self.rgb.__doc__
+
+        self._rgb = [red, green, blue]
+
+        return
+
+
+class OpenGLTriangle(OpenGLObject):
     """OpenGL三角形。"""
 
     def __init__(self, vertex1, vertex2, vertex3):
         """OpenGL三角形のコンストラクタ。"""
         if DEBUG: print __name__, self.__init__.__doc__
 
+        super(OpenGLTriangle, self).__init__()
         self._vertex1 = vertex1
         self._vertex2 = vertex2
         self._vertex3 = vertex3
@@ -321,6 +350,7 @@ class OpenGLTriangle(object):
         """OpenGL三角形をレンダリングする。"""
         if DEBUG: print __name__, self.rendering.__doc__
 
+        super(OpenGLTriangle, self).rendering()
         glBegin(GL_TRIANGLES)
         glNormal3fv(self._normal_unit_vector)
         glVertex3fv(self._vertex1)
@@ -331,15 +361,15 @@ class OpenGLTriangle(object):
         return
 
 
-class OpenGLPolygon(object):
+class OpenGLPolygon(OpenGLObject):
     """OpenGL多角形。"""
 
-    def __init__(self, vertexes, rgb):
+    def __init__(self, vertexes):
         """OpenGL多角形のコンストラクタ。"""
         if DEBUG: print __name__, self.__init__.__doc__
 
+        super(OpenGLPolygon, self).__init__()
         self._vertexes = vertexes
-        self._rgb = rgb
 
         x = 0.0
         y = 0.0
@@ -363,7 +393,7 @@ class OpenGLPolygon(object):
         """OpenGL多角形をレンダリングする。"""
         if DEBUG: print __name__, self.rendering.__doc__
 
-        glColor4d(self._rgb[0], self._rgb[1], self._rgb[2], 1.0)
+        super(OpenGLPolygon, self).rendering()
         glBegin(GL_POLYGON)
         glNormal3fv(self._normal_unit_vector)
         for vertex in self._vertexes:
@@ -417,6 +447,7 @@ class DragonModel(OpenGLModel):
                         indexes = map(int, a_list[0:3])
                         vertexes = map(index_to_vertex, indexes)
                         a_tringle = OpenGLTriangle(*vertexes)
+                        a_tringle.rgb(0.5, 0.5, 1.0)
                         self._display_object.append(a_tringle)
 
         return
@@ -474,7 +505,8 @@ class WaspModel(OpenGLModel):
                         indexes = map(int, a_list[1:index])
                         vertexes = map(index_to_vertex, indexes)
                         rgb_color = map(float, a_list[index:index + 3])
-                        a_polygon = OpenGLPolygon(vertexes, rgb_color)
+                        a_polygon = OpenGLPolygon(vertexes)
+                        a_polygon.rgb(*rgb_color)
                         self._display_object.append(a_polygon)
 
         return
@@ -557,6 +589,7 @@ class BunnyModel(OpenGLModel):
                         indexes = map(int, a_list[1:4])
                         vertexes = map(index_to_vertex, indexes)
                         a_tringle = OpenGLTriangle(*vertexes)
+                        a_tringle.rgb(1.0, 1.0, 1.0)
                         self._display_object.append(a_tringle)
                 if first_string == "comment":
                     second_string = a_list[1]
