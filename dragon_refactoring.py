@@ -149,6 +149,7 @@ class OpenGLModel(object):
         self._projection = OpenGLProjection()
         self._display_list = None
         self._view = None
+        self._axes_scale = 1.0
 
         return
 
@@ -308,16 +309,18 @@ class OpenGLView(object):
         """世界座標系を描画する。"""
         if TRACE: print __name__, self.display_axes.__doc__
 
+        axes_scale = self._model._axes_scale
+        scaled_by_n = (lambda vertex: map((lambda value: value * axes_scale), vertex))
         glBegin(GL_LINES)
         glColor([1.0, 0.0, 0.0, 1.0])
-        glVertex([-1.000, 0.0, 0.0])
-        glVertex([1.618, 0.0, 0.0])
+        glVertex(scaled_by_n([-1.00, 0.0, 0.0]))
+        glVertex(scaled_by_n([1.68, 0.0, 0.0]))
         glColor([0.0, 1.0, 0.0, 1.0])
-        glVertex([0.0, -1.000, 0.0])
-        glVertex([0.0, 1.618, 0.0])
+        glVertex(scaled_by_n([0.0, -1.00, 0.0]))
+        glVertex(scaled_by_n([0.0, 1.68, 0.0]))
         glColor([0.0, 0.0, 1.0, 1.0])
-        glVertex([0.0, 0.0, -1.000])
-        glVertex([0.0, 0.0, 1.618])
+        glVertex(scaled_by_n([0.0, 0.0, -1.00]))
+        glVertex(scaled_by_n([0.0, 0.0, 1.68]))
         glEnd()
 
         return
@@ -597,6 +600,7 @@ class WaspModel(OpenGLModel):
         self._projection.sight_point_([0.19825005531311, 1.8530999422073, -0.63795006275177])
         self._projection.up_vector_([0.070077999093727, 0.99630606032682, -0.049631725731267])
         self._projection.fovy_(41.480099231656)
+        self._axes_scale = 4.0
 
         filename = os.path.join(os.getcwd(), 'wasp.txt')
         if os.path.exists(filename) and os.path.isfile(filename):
@@ -637,40 +641,11 @@ class WaspModel(OpenGLModel):
 
         return
 
-    def default_view_class(self):
-        """スズメバチのモデルを表示するデフォルトのビューのクラスを応答する。"""
-        if TRACE: print __name__, self.default_view_class.__doc__
-
-        return WaspView
-
     def default_window_title(self):
         """スズメバチのウィンドウのタイトル(ラベル)を応答する。"""
         if TRACE: print __name__, self.default_window_title.__doc__
 
         return "Wasp"
-
-
-class WaspView(OpenGLView):
-    """スズメバチのビュー。"""
-
-    def display_axes(self):
-        """世界座標系を描画する。"""
-        if TRACE: print __name__, self.display_axes.__doc__
-
-        scaled_by_n = (lambda vertex: map((lambda value: value * 4.0), vertex))
-        glBegin(GL_LINES)
-        glColor([1.0, 0.0, 0.0, 1.0])
-        glVertex(scaled_by_n([-1.00, 0.0, 0.0]))
-        glVertex(scaled_by_n([1.68, 0.0, 0.0]))
-        glColor([0.0, 1.0, 0.0, 1.0])
-        glVertex(scaled_by_n([0.0, -1.00, 0.0]))
-        glVertex(scaled_by_n([0.0, 1.68, 0.0]))
-        glColor([0.0, 0.0, 1.0, 1.0])
-        glVertex(scaled_by_n([0.0, 0.0, -1.00]))
-        glVertex(scaled_by_n([0.0, 0.0, 1.68]))
-        glEnd()
-
-        return
 
 
 class BunnyModel(OpenGLModel):
@@ -681,6 +656,7 @@ class BunnyModel(OpenGLModel):
         if TRACE: print __name__, self.__init__.__doc__
 
         super(BunnyModel, self).__init__()
+        self._axes_scale = 0.1
 
         filename = os.path.join(os.getcwd(), 'bunny.ply')
         if os.path.exists(filename) and os.path.isfile(filename):
@@ -730,27 +706,11 @@ class BunnyModel(OpenGLModel):
 
         return
 
-    def default_view_class(self):
-        """うさぎのモデルを表示するデフォルトのビューのクラスを応答する。"""
-        if TRACE: print __name__, self.default_view_class.__doc__
-
-        return BunnyView
-
     def default_window_title(self):
         """うさぎのウィンドウのタイトル(ラベル)を応答する。"""
         if TRACE: print __name__, self.default_window_title.__doc__
 
         return "Stanford Bunny"
-
-
-class BunnyView(OpenGLView):
-    """うさぎのビュー。"""
-
-    def display_axes(self):
-        """世界座標系を描画しない。"""
-        if TRACE: print __name__, self.display_axes.__doc__
-
-        return
 
 
 class PenguinModel(OpenGLModel):
@@ -765,6 +725,7 @@ class PenguinModel(OpenGLModel):
         self._projection.sight_point_([0.070155, 0.108575, 0.056235])
         self._projection.up_vector_([0.03950581341181, 0.99260439594225, -0.11478590446043])
         self._projection.fovy_(13.527497808711)
+        self._axes_scale = 2.0
 
         filename = os.path.join(os.getcwd(), 'penguin.txt')
         if os.path.exists(filename) and os.path.isfile(filename):
@@ -827,6 +788,7 @@ class OniModel(OpenGLModel):
         self._projection.sight_point_([-0.056150078773499, 0.022249937057495, -2.1525999903679])
         self._projection.up_vector_([0.03835909829153, 0.99323407243554, -0.10961139051838])
         self._projection.fovy_(19.221287002173)
+        self._axes_scale = 2.7
 
         filename = os.path.join(os.getcwd(), 'oni.txt')
         if os.path.exists(filename) and os.path.isfile(filename):
@@ -899,6 +861,7 @@ class BabyModel(OpenGLModel):
         self._projection.sight_point_([0.0, 0.14168989658356, 0.18842494487762])
         self._projection.up_vector_([0.039485481935453, 0.99266691863474, -0.11425097533293])
         self._projection.fovy_(13.079457895221)
+        self._axes_scale = 1.8
 
         filename = os.path.join(os.getcwd(), 'baby.txt')
         if os.path.exists(filename) and os.path.isfile(filename):
