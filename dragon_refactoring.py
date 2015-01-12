@@ -479,11 +479,41 @@ class WaspModel(OpenGLModel):
 
         return
 
+    def default_view_class(self):
+        """スズメバチのモデルを表示するデフォルトのビューのクラスを応答する。"""
+        if TRACE: print __name__, self.default_view_class.__doc__
+
+        return WaspView
+
+
     def default_window_title(self):
         """スズメバチのウィンドウのタイトル(ラベル)を応答する。"""
         if TRACE: print __name__, self.default_window_title.__doc__
 
         return "Wasp"
+
+class WaspView(OpenGLView):
+    """スズメバチのビュー。"""
+
+    def display_axes(self):
+        """世界座標系を描画する。"""
+        if TRACE: print __name__, self.display_axes.__doc__
+
+        scaled_by_n = (lambda vertex: map((lambda value: value * 4.0), vertex))
+        glBegin(GL_LINES)
+        glColor([ 1.0, 0.0, 0.0, 1.0 ])
+        glVertex(scaled_by_n([-1.00, 0.0, 0.0 ]))
+        glVertex(scaled_by_n([ 1.68, 0.0, 0.0 ]))
+        glColor([ 0.0, 1.0, 0.0, 1.0 ])
+        glVertex(scaled_by_n([ 0.0,-1.00, 0.0 ]))
+        glVertex(scaled_by_n([ 0.0, 1.68, 0.0 ]))
+        glColor([ 0.0, 0.0, 1.0, 1.0 ])
+        glVertex(scaled_by_n([ 0.0, 0.0,-1.00 ]))
+        glVertex(scaled_by_n([ 0.0, 0.0, 1.68 ]))
+        glEnd()
+
+        return
+
 
 
 def main():
