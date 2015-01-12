@@ -43,14 +43,18 @@ class DragonModel(object):
                 if len(a_list) == 0: continue
                 first_string = a_list[0]
                 if first_string == "number_of_vertexes":
-                      number_of_vertexes = 0
+                      number_of_vertexes = int(a_list[1])
                 if first_string == "number_of_triangles":
-                    number_of_triangles = 0
+                    number_of_triangles = int(a_list[1])
                 if first_string == "end_header":
                     for n_th in range(number_of_vertexes):
-                        pass
+                        if (n_th + 1) % 10 == 0: print n_th
+                        else: print n_th,
+                        print
                     for n_th in range(number_of_triangles):
-                        pass
+                        if (n_th + 1) % 10 == 0: print n_th
+                        else: print n_th,
+                        print
 
         return
 
