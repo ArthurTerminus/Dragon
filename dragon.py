@@ -1,6 +1,4 @@
-__author__ = 'Arthur'
-
-#! /usr/bin/env python
+# ! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import sys
@@ -16,7 +14,7 @@ DEBUG = False
 
 def main():
     """ドラゴンの立体データを読み込んで描画する。"""
-    if TRACE: print __name__.main.__doc__
+    if TRACE: print __name__, main.__doc__
 
     return 0
 
