@@ -59,6 +59,8 @@ class DragonModel(object):
         """ドラゴンのモデルをレンダリングする。"""
         if TRACE: print __name__, self.rendering.__doc__
 
+        glCallList(self.display_list())
+
         return
 
 
