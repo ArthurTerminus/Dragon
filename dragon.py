@@ -12,6 +12,7 @@ from OpenGL.GLUT import *
 TRACE = True
 DEBUG = False
 
+
 class DragonModel(object):
     """ドラゴンのモデル。"""
 
@@ -26,6 +27,26 @@ class DragonModel(object):
         self._fovy = 12.642721790235
         self._display_list = None
         self._view = None
+
+        return
+
+    def display_list(self):
+        """ドラゴンのモデルのディスプレイリスト(表示物をコンパイルしたOpenGLコマンド列)を応答する。"""
+        if TRACE: print __name__, self.display_list.__doc__
+
+        return self._display_list
+
+    def open(self):
+        """ドラゴンのモデルを描画するためのOpenGLのウィンドウを開く。"""
+        if TRACE: print __name__, self.open.__doc__
+
+        self._view = DragonView(self)
+
+        return
+
+    def rendering(self):
+        """ドラゴンのモデルをレンダリングする。"""
+        if TRACE: print __name__, self.rendering.__doc__
 
         return
 
@@ -47,6 +68,18 @@ class DragonView(object):
 
         return
 
+    def display(self):
+        """OpenGLで描画する。"""
+        if TRACE: print __name__, self.display.__doc__
+
+        return
+
+    def reshape(self, width, height):
+        """OpenGLを再形成する。"""
+        if TRACE: print __name__, self.reshape.__doc__
+
+        return
+
 
 class DragonController(object):
     """ドラゴンのコントローラ。"""
@@ -57,6 +90,24 @@ class DragonController(object):
 
         self._model = a_view._model
         self._view = a_view
+
+        return
+
+    def keyboard(self, key, x, y):
+        """キーボードを処理する。"""
+        if TRACE: print __name__, self.keyboard.__doc__
+
+        return
+
+    def motion(self, x, y):
+        """マウスボタンを押下しながらの移動を処理する。"""
+        if TRACE: print __name__, self.motion.__doc__
+
+        return
+
+    def mouse(self, button, state, x, y):
+        """マウスボタンを処理する。"""
+        if TRACE: print __name__, self.mouse.__doc__
 
         return
 
@@ -74,12 +125,19 @@ class DragonTriangle(object):
 
         return
 
+    def rendering(self):
+        """ドラゴンの三角形をレンダリングする。"""
+        if DEBUG: print __name__, self.rendering.__doc__
+
+        return
+
 
 def main():
     """ドラゴンの立体データを読み込んで描画する。"""
     if TRACE: print __name__, main.__doc__
 
     a_model = DragonModel()
+    a_model .open()
 
     return 0
 
