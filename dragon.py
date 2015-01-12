@@ -12,7 +12,6 @@ from OpenGL.GLUT import *
 TRACE = True
 DEBUG = False
 
-
 class DragonModel(object):
     """ドラゴンのモデル。"""
 
@@ -81,7 +80,7 @@ def main():
     if TRACE: print __name__, main.__doc__
 
     a_model = DragonModel()
-    
+
     return 0
 
 
