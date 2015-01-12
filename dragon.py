@@ -24,7 +24,7 @@ class DragonModel(object):
         self._eye_point = [-5.5852450791872, 3.07847342734, 15.794105252496]
         self._sight_point = [0.27455347776413, 0.20096999406815, -0.11261999607086]
         self._up_vector = [0.1018574904194, 0.98480906061847, -0.14062775604137]
-        self._fovy = 12.642721790235
+        self._fovy = self._default_fovy = 12.642721790235
         self._display_list = None
         self._view = None
 
@@ -238,6 +238,7 @@ class DragonController(object):
             self._view._angle_x = 0.0
             self._view._angle_y = 0.0
             self._view._angle_z = 0.0
+            self._model._fovy = self._model._default_fovy
         if key == 'x':
             self._view._angle_x += 1.0
         if key == 'y':
@@ -250,6 +251,10 @@ class DragonController(object):
             self._view._angle_y -= 1.0
         if key == 'Z':
             self._view._angle_z -= 1.0
+        if key == 's':
+            self._model._fovy += 1.0
+        if key == 'S':
+            self._model._fovy -= 1.0
 
         glutPostRedisplay()
 
