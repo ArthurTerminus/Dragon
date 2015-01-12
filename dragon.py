@@ -28,6 +28,16 @@ class DragonModel(object):
         self._display_list = None
         self._view = None
 
+        filename = os.path.join(os.getcwd(), 'dragon.txt')
+        if os.path.exists(filename) and os.path.isfile(filename):
+            pass
+        else:
+            url = 'http://www.cc.kyoto-su.ac.jp/~atsushi/Programs/Dragon/dragon.txt'
+            urllib.urlretrieve(url, filename)
+
+        with open(filename, "rU") as a_file:
+            pass
+
         return
 
     def display_list(self):
@@ -265,19 +275,18 @@ class DragonTriangle(object):
 
         return
 
+    def rendering(self):
+        """ドラゴンの三角形をレンダリングする。"""
+        if DEBUG: print __name__, self.rendering.__doc__
 
-def rendering(self):
-    """ドラゴンの三角形をレンダリングする。"""
-    if DEBUG: print __name__, self.rendering.__doc__
+        glBegin(GL_TRIANGLES)
+        glNormal3fv(self._normal_unit_vector)
+        glVertex3fv(self._vertex1)
+        glVertex3fv(self._vertex2)
+        glVertex3fv(self._vertex3)
+        glEnd()
 
-    glBegin(GL_TRIANGLES)
-    glNormal3fv(self._normal_unit_vector)
-    glVertex3fv(self._vertex1)
-    glVertex3fv(self._vertex2)
-    glVertex3fv(self._vertex3)
-    glEnd()
-
-    return
+        return
 
 
 def main():
