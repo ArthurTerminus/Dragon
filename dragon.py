@@ -124,6 +124,7 @@ class DragonView(object):
         glutKeyboardFunc(self._controller.keyboard)
         glutMouseFunc(self._controller.mouse)
         glutMotionFunc(self._controller.motion)
+        glutWMCloseFunc(self._controller.close)
 
         glEnable(GL_COLOR_MATERIAL)
         glEnable(GL_DEPTH_TEST)
@@ -217,6 +218,15 @@ class DragonController(object):
         self._view = a_view
 
         return
+
+    def close(self):
+        """ウィンドウを閉じる際の処理をする。"""
+        if TRACE: print __name__, self.close.__doc__
+
+        sys.exit(0)
+
+        return
+
 
     def keyboard(self, key, x, y):
         """キーボードを処理する。"""
