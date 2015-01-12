@@ -36,7 +36,11 @@ class DragonModel(object):
             urllib.urlretrieve(url, filename)
 
         with open(filename, "rU") as a_file:
-            pass
+            while True:
+                a_string = a_file.readline()
+                if len(a_string) == 0: break
+                a_list = a_string.split()
+                print a_list
 
         return
 
