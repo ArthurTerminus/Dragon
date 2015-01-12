@@ -257,13 +257,20 @@ class DragonTriangle(object):
         self._vertex2 = vertex2
         self._vertex3 = vertex3
 
+        ux, uy, uz = map((lambda value1, value0: value1 - value0), vertex2, vertex1)
+        vx, vy, vz = map((lambda value1, value0: value1 - value0), vertex3, vertex1)
+        normal_vector = [(uy * vz - uz * vy), (uz * vx - ux * vz), (ux * vy - uy * vx)]
+        distance = sum(map((lambda value: value * value), normal_vector)) ** 0.5
+        self._normal_unit_vector = map((lambda vector: vector / distance), normal_vector)
+
         return
 
-    def rendering(self):
-        """ドラゴンの三角形をレンダリングする。"""
-        if DEBUG: print __name__, self.rendering.__doc__
 
-        return
+def rendering(self):
+    """ドラゴンの三角形をレンダリングする。"""
+    if DEBUG: print __name__, self.rendering.__doc__
+
+    return
 
 
 def main():
