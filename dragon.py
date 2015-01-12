@@ -53,10 +53,14 @@ class DragonModel(object):
                         a_list = get_tokens(a_file)
                         a_vertex = map(float, a_list[0:3])
                         collection_of_vertexes.append(a_vertex)
-                        #print collection_of_vertexes
+                        index_to_vertex = (lambda index: collection_of_vertexes[index-1])
                     for n_th in range(number_of_triangles):
                         a_list = get_tokens(a_file)
-                        #print a_list
+                        indexes = map(int, a_list[0:3])
+                        vertexes = map(index_to_vertex, indexes)
+                        a_tringle = DragonTriangle(*vertexes)
+                        self._triangles.append(a_tringle)
+
 
         return
 
