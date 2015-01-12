@@ -13,6 +13,131 @@ TRACE = True
 DEBUG = False
 
 
+class OpenGLProjection(object):
+    """OpenGLプロジェクション。"""
+
+    def __init__(self):
+        """OpenGLプロジェクションのコンストラクタ。"""
+        if TRACE: print __name__, self.__init__.__doc__
+
+        self._eye_point = self._default_eye_point = None
+        self._sight_point = self._default_sight_point = None
+        self._up_vector = self._default_up_vector = None
+        self._fovy = self._default_fovy = None
+        self._near = self._default_near = None
+        self._far = self._default_far = None
+
+        return
+
+    def eye_point(self):
+        """視点を応答する。"""
+        if TRACE: print __name__, self.eye_point.__doc__
+
+        if self._eye_point == None: self.eye_point_([0.0, 0.0, 10.0])
+        return self._eye_point
+
+    def eye_point_(self, a_point):
+        """視点を設定する。"""
+        if TRACE: print __name__, self.eye_point_.__doc__
+
+        self._eye_point = a_point
+        if self._default_eye_point == None: self._default_eye_point = a_point
+
+        return
+
+    def sight_point(self):
+        """注視点を応答する。"""
+        if TRACE: print __name__, self.sight_point.__doc__
+
+        if self._sight_point == None: self.sight_point_([0.0, 0.0, 0.0])
+        return self._sight_point
+
+    def sight_point_(self, a_point):
+        """注視点を設定する。"""
+        if TRACE: print __name__, self.sight_point_.__doc__
+
+        self._sight_point = a_point
+        if self._default_sight_point == None: self._default_sight_point = a_point
+
+        return
+
+    def up_vector(self):
+        """上方向ベクトルを応答する。"""
+        if TRACE: print __name__, self.up_vector.__doc__
+
+        if self._up_vector == None: self.up_vector_([0.0, 1.0, 0.0])
+        return self._up_vector
+
+    def up_vector_(self, a_point):
+        """上方向ベクトルを設定する。"""
+        if TRACE: print __name__, self.up_vector_.__doc__
+
+        self._up_vector = a_point
+        if self._default_up_vector == None: self._default_up_vector = a_point
+
+        return
+
+    def fovy(self):
+        """視界角を応答する。"""
+        if TRACE: print __name__, self.fovy.__doc__
+
+        if self._fovy == None: self.fovy_(30.0)
+        return self._fovy
+
+    def fovy_(self, a_float):
+        """視界角を設定する。"""
+        if TRACE: print __name__, self.fovy_.__doc__
+
+        self._fovy = a_float
+        if self._default_fovy == None: self._default_fovy = a_float
+
+        return
+
+    def near(self):
+        """近を応答する。"""
+        if TRACE: print __name__, self.near.__doc__
+
+        if self._near == None: self.near_(0.01)
+        return self._near
+
+    def near_(self, a_float):
+        """近を設定する。"""
+        if TRACE: print __name__, self.near_.__doc__
+
+        self._near = a_float
+        if self._default_near == None: self._default_near = a_float
+
+        return
+
+    def far(self):
+        """遠を応答する。"""
+        if TRACE: print __name__, self.far.__doc__
+
+        if self._far == None: self.far_(100)
+        return self._far
+
+    def far_(self, a_float):
+        """遠を設定する。"""
+        if TRACE: print __name__, self.far_.__doc__
+
+        self._far = a_float
+        if self._default_far == None: self._default_far = a_float
+
+        return
+
+    def reset(self):
+        """プロジェクション情報をデフォルト(最初に設定されたパラメータ)に設定し直す。"""
+        if TRACE: print __name__, self.reset.__doc__
+
+        if self._default_eye_point != None:
+            self._eye_point = self._default_eye_point
+
+        if self._default_fovy != None:
+            self._fovy = self._default_fovy
+
+        return
+
+
 class OpenGLModel(object):
     """OpenGLモデル。"""
 
@@ -21,10 +146,7 @@ class OpenGLModel(object):
         if TRACE: print __name__, self.__init__.__doc__
 
         self._display_object = []
-        self._eye_point = None
-        self._sight_point = None
-        self._up_vector = None
-        self._fovy = self._default_fovy = None
+        self._projection = OpenGLProjection()
         self._display_list = None
         self._view = None
 
@@ -133,14 +255,15 @@ class OpenGLView(object):
         """OpenGLで描画する。"""
         if TRACE: print __name__, self.display.__doc__
 
-        eye_point = self._model._eye_point
-        sight_point = self._model._sight_point
-        up_vector = self._model._up_vector
-        fovy = self._model._fovy
+        projection = self._model._projection
+        eye_point = projection.eye_point()
+        sight_point = projection.sight_point()
+        up_vector = projection.up_vector()
+        fovy = projection.fovy()
+        near = projection.near()
+        far = projection.far()
 
         aspect = float(self._width) / float(self._height)
-        near = 0.01
-        far = 100.0
 
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
@@ -235,29 +358,32 @@ class OpenGLController(object):
         """キーボードを処理する。"""
         if TRACE: print __name__, self.keyboard.__doc__
 
+        view = self._view
+        projection = self._model._projection
+
         if key in "qQ\33":
             sys.exit(0)
         if key == 'r' or key == 'R':
-            self._view._angle_x = 0.0
-            self._view._angle_y = 0.0
-            self._view._angle_z = 0.0
-            self._model._fovy = self._model._default_fovy
+            view._angle_x = 0.0
+            view._angle_y = 0.0
+            view._angle_z = 0.0
+            projection.reset()
         if key == 'x':
-            self._view._angle_x += 1.0
+            view._angle_x += 1.0
         if key == 'y':
-            self._view._angle_y += 1.0
+            view._angle_y += 1.0
         if key == 'z':
-            self._view._angle_z += 1.0
+            view._angle_z += 1.0
         if key == 'X':
-            self._view._angle_x -= 1.0
+            view._angle_x -= 1.0
         if key == 'Y':
-            self._view._angle_y -= 1.0
+            view._angle_y -= 1.0
         if key == 'Z':
-            self._view._angle_z -= 1.0
+            view._angle_z -= 1.0
         if key == 's':
-            self._model._fovy += 1.0
+            projection.fovy_(projection.fovy() + 1.0)
         if key == 'S':
-            self._model._fovy -= 1.0
+            projection.fovy_(projection.fovy() - 1.0)
 
         self._view.display()  # glutPostRedisplay()
 
@@ -411,10 +537,10 @@ class DragonModel(OpenGLModel):
         if TRACE: print __name__, self.__init__.__doc__
 
         super(DragonModel, self).__init__()
-        self._eye_point = [-5.5852450791872, 3.07847342734, 15.794105252496]
-        self._sight_point = [0.27455347776413, 0.20096999406815, -0.11261999607086]
-        self._up_vector = [0.1018574904194, 0.98480906061847, -0.14062775604137]
-        self._fovy = self._default_fovy = 12.642721790235
+        self._projection.eye_point_([-5.5852450791872, 3.07847342734, 15.794105252496])
+        self._projection.sight_point_([0.27455347776413, 0.20096999406815, -0.11261999607086])
+        self._projection.up_vector_([0.1018574904194, 0.98480906061847, -0.14062775604137])
+        self._projection.fovy_(12.642721790235)
 
         filename = os.path.join(os.getcwd(), 'dragon.txt')
         if os.path.exists(filename) and os.path.isfile(filename):
@@ -467,10 +593,10 @@ class WaspModel(OpenGLModel):
         if TRACE: print __name__, self.__init__.__doc__
 
         super(WaspModel, self).__init__()
-        self._eye_point = [-5.5852450791872, 3.07847342734, 15.794105252496]
-        self._sight_point = [0.19825005531311, 1.8530999422073, -0.63795006275177]
-        self._up_vector = [0.070077999093727, 0.99630606032682, -0.049631725731267]
-        self._fovy = self._default_fovy = 41.480099231656
+        self._projection.eye_point_([-5.5852450791872, 3.07847342734, 15.794105252496])
+        self._projection.sight_point_([0.19825005531311, 1.8530999422073, -0.63795006275177])
+        self._projection.up_vector_([0.070077999093727, 0.99630606032682, -0.049631725731267])
+        self._projection.fovy_(41.480099231656)
 
         filename = os.path.join(os.getcwd(), 'wasp.txt')
         if os.path.exists(filename) and os.path.isfile(filename):
@@ -594,13 +720,13 @@ class BunnyModel(OpenGLModel):
                 if first_string == "comment":
                     second_string = a_list[1]
                     if second_string == "eye_point_xyz":
-                        self._eye_point = map(float, a_list[2:5])
+                        self._projection.eye_point_(map(float, a_list[2:5]))
                     if second_string == "sight_point_xyz":
-                        self._sight_point = map(float, a_list[2:5])
+                        self._projection.sight_point_(map(float, a_list[2:5]))
                     if second_string == "up_vector_xyz":
-                        self._up_vector = map(float, a_list[2:5])
+                        self._projection.up_vector_(map(float, a_list[2:5]))
                     if second_string == "zoom_height" and a_list[3] == "fovy":
-                        self._fovy = self._default_fovy = float(a_list[4])
+                        self._projection.fovy_(float(a_list[4]))
 
         return
 
