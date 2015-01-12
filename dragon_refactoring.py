@@ -753,6 +753,210 @@ class BunnyView(OpenGLView):
         return
 
 
+class PenguinModel(OpenGLModel):
+    """ペンギンのモデル。"""
+
+    def __init__(self):
+        """ペンギンのモデルのコンストラクタ。"""
+        if TRACE: print __name__, self.__init__.__doc__
+
+        super(PenguinModel, self).__init__()
+        self._projection.eye_point_([-6.6153435525924, 3.5413918991617, 27.440373330962])
+        self._projection.sight_point_([0.070155, 0.108575, 0.056235])
+        self._projection.up_vector_([0.03950581341181, 0.99260439594225, -0.11478590446043])
+        self._projection.fovy_(13.527497808711)
+
+        filename = os.path.join(os.getcwd(), 'penguin.txt')
+        if os.path.exists(filename) and os.path.isfile(filename):
+            pass
+        else:
+            url = 'http://www.cc.kyoto-su.ac.jp/~atsushi/Programs/Penguin/penguin.txt'
+            urllib.urlretrieve(url, filename)
+
+        with open(filename, "rU") as a_file:
+            while True:
+                a_string = a_file.readline()
+                if len(a_string) == 0: break
+                a_list = a_string.split()
+                if len(a_list) == 0: continue
+                first_string = a_list[0]
+                if first_string == "number_of_vertexes":
+                    number_of_vertexes = int(a_list[1])
+                if first_string == "number_of_polygons":
+                    number_of_polygons = int(a_list[1])
+                if first_string == "end_header":
+                    get_tokens = (lambda file: file.readline().split())
+                    collection_of_vertexes = []
+                    for n_th in range(number_of_vertexes):
+                        a_list = get_tokens(a_file)
+                        a_vertex = map(float, a_list[0:3])
+                        collection_of_vertexes.append(a_vertex)
+                    index_to_vertex = (lambda index: collection_of_vertexes[index - 1])
+                    for n_th in range(number_of_polygons):
+                        a_list = get_tokens(a_file)
+                        number_of_indexes = int(a_list[0])
+                        index = number_of_indexes + 1
+                        indexes = map(int, a_list[1:index])
+                        vertexes = map(index_to_vertex, indexes)
+                        a_polygon = OpenGLPolygon(vertexes)
+                        self._display_object.append(a_polygon)
+                    for n_th in range(number_of_polygons):
+                        a_list = get_tokens(a_file)
+                        rgb_color = map(float, a_list[0:3])
+                        a_polygon = self._display_object[n_th]
+                        a_polygon.rgb(*rgb_color)
+
+        return
+
+    def default_window_title(self):
+        """ペンギンのウィンドウのタイトル(ラベル)を応答する。"""
+        if TRACE: print __name__, self.default_window_title.__doc__
+
+        return "Penguin"
+
+
+class OniModel(OpenGLModel):
+    """鬼のモデル。"""
+
+    def __init__(self):
+        """鬼のモデルのコンストラクタ。"""
+        if TRACE: print __name__, self.__init__.__doc__
+
+        super(OniModel, self).__init__()
+        self._projection.eye_point_([-6.6153435525924, 3.5413918991617, 27.440373330962])
+        self._projection.sight_point_([-0.056150078773499, 0.022249937057495, -2.1525999903679])
+        self._projection.up_vector_([0.03835909829153, 0.99323407243554, -0.10961139051838])
+        self._projection.fovy_(19.221287002173)
+
+        filename = os.path.join(os.getcwd(), 'oni.txt')
+        if os.path.exists(filename) and os.path.isfile(filename):
+            pass
+        else:
+            url = 'http://www.cc.kyoto-su.ac.jp/~atsushi/Programs/Oni/oni.txt'
+            urllib.urlretrieve(url, filename)
+
+        with open(filename, "rU") as a_file:
+            while True:
+                a_string = a_file.readline()
+                if len(a_string) == 0: break
+                a_list = a_string.split()
+                if len(a_list) == 0: continue
+                first_string = a_list[0]
+                if first_string == "number_of_vertexes":
+                    number_of_vertexes = int(a_list[1])
+                if first_string == "number_of_polygons":
+                    number_of_polygons = int(a_list[1])
+                if first_string == "number_of_colors":
+                    number_of_colors = int(a_list[1])
+                if first_string == "end_header":
+                    get_tokens = (lambda file: file.readline().split())
+                    collection_of_vertexes = []
+                    for n_th in range(number_of_vertexes):
+                        a_list = get_tokens(a_file)
+                        a_vertex = map(float, a_list[0:3])
+                        collection_of_vertexes.append(a_vertex)
+                    index_to_vertex = (lambda index: collection_of_vertexes[index - 1])
+                    collection_of_indexes = []
+                    for n_th in range(number_of_polygons):
+                        a_list = get_tokens(a_file)
+                        number_of_indexes = int(a_list[0])
+                        index = number_of_indexes + 1
+                        indexes = map(int, a_list[1:index])
+                        vertexes = map(index_to_vertex, indexes)
+                        index = int(a_list[index])
+                        collection_of_indexes.append(index)
+                        a_polygon = OpenGLPolygon(vertexes)
+                        self._display_object.append(a_polygon)
+                    collection_of_colors = []
+                    for n_th in range(number_of_colors):
+                        a_list = get_tokens(a_file)
+                        rgb_color = map(float, a_list[0:3])
+                        collection_of_colors.append(rgb_color)
+                    for n_th in range(number_of_polygons):
+                        index = collection_of_indexes[n_th]
+                        rgb_color = collection_of_colors[index - 1]
+                        a_polygon = self._display_object[n_th]
+                        a_polygon.rgb(*rgb_color)
+
+        return
+
+    def default_window_title(self):
+        """鬼のウィンドウのタイトル(ラベル)を応答する。"""
+        if TRACE: print __name__, self.default_window_title.__doc__
+
+        return "Oni"
+
+
+class BabyModel(OpenGLModel):
+    """赤ちゃんのモデル。"""
+
+    def __init__(self):
+        """赤ちゃんのモデルのコンストラクタ。"""
+        if TRACE: print __name__, self.__init__.__doc__
+
+        super(BabyModel, self).__init__()
+        self._projection.eye_point_([-6.6153435525924, 3.5413918991617, 27.440373330962])
+        self._projection.sight_point_([0.0, 0.14168989658356, 0.18842494487762])
+        self._projection.up_vector_([0.039485481935453, 0.99266691863474, -0.11425097533293])
+        self._projection.fovy_(13.079457895221)
+
+        filename = os.path.join(os.getcwd(), 'baby.txt')
+        if os.path.exists(filename) and os.path.isfile(filename):
+            pass
+        else:
+            url = 'http://www.cc.kyoto-su.ac.jp/~atsushi/Programs/Baby/baby.txt'
+            urllib.urlretrieve(url, filename)
+
+        with open(filename, "rU") as a_file:
+            while True:
+                a_string = a_file.readline()
+                if len(a_string) == 0: break
+                a_list = a_string.split()
+                if len(a_list) == 0: continue
+                first_string = a_list[0]
+                if first_string == "number_of_vertexes":
+                    number_of_vertexes = int(a_list[1])
+                if first_string == "number_of_polygons":
+                    number_of_polygons = int(a_list[1])
+                if first_string == "number_of_colors":
+                    number_of_colors = int(a_list[1])
+                if first_string == "end_header":
+                    get_tokens = (lambda file: file.readline().split())
+                    collection_of_vertexes = []
+                    for n_th in range(number_of_vertexes):
+                        a_list = get_tokens(a_file)
+                        a_vertex = map(float, a_list[0:3])
+                        collection_of_vertexes.append(a_vertex)
+                    index_to_vertex = (lambda index: collection_of_vertexes[index - 1])
+                    for n_th in range(number_of_polygons):
+                        a_list = get_tokens(a_file)
+                        number_of_indexes = int(a_list[0])
+                        index = number_of_indexes + 1
+                        indexes = map(int, a_list[1:index])
+                        vertexes = map(index_to_vertex, indexes)
+                        a_polygon = OpenGLPolygon(vertexes)
+                        self._display_object.append(a_polygon)
+                    collection_of_colors = []
+                    for n_th in range(number_of_colors):
+                        a_list = get_tokens(a_file)
+                        rgb_color = map(float, a_list[0:3])
+                        collection_of_colors.append(rgb_color)
+                    for n_th in range(number_of_polygons):
+                        a_list = get_tokens(a_file)
+                        index = int(a_list[0])
+                        rgb_color = collection_of_colors[index - 1]
+                        a_polygon = self._display_object[n_th]
+                        a_polygon.rgb(*rgb_color)
+
+        return
+
+    def default_window_title(self):
+        """赤ちゃんのウィンドウのタイトル(ラベル)を応答する。"""
+        if TRACE: print __name__, self.default_window_title.__doc__
+
+        return "Baby"
+
+
 def main():
     """OpenGL立体データを読み込んで描画する。"""
     if TRACE: print __name__, main.__doc__
@@ -764,6 +968,15 @@ def main():
     a_model.open()
 
     a_model = BunnyModel()
+    a_model.open()
+
+    a_model = PenguinModel()
+    a_model.open()
+
+    a_model = OniModel()
+    a_model.open()
+
+    a_model = BabyModel()
     a_model.open()
 
     glutMainLoop()
