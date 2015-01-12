@@ -91,6 +91,62 @@ class DragonView(object):
         """OpenGLで描画する。"""
         if TRACE: print __name__, self.display.__doc__
 
+        eye_point = self._model._eye_point
+        sight_point = self._model._sight_point
+        up_vector = self._model._up_vector
+        fovy = self._model._fovy
+
+        aspect = float(self._width) / float(self._height)
+        near = 0.01
+        far = 100.0
+
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        gluPerspective(fovy, aspect, near, far)
+
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        gluLookAt(eye_point[0], eye_point[1], eye_point[2],
+                  sight_point[0], sight_point[1], sight_point[2],
+                  up_vector[0], up_vector[1], up_vector[2])
+
+        glClearColor(1.0, 1.0, 1.0, 1.0)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        glEnable(GL_LIGHTING)
+        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, [0.5, 0.5, 0.5, 1.0])
+        glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 0.0)
+        glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1.0)
+        glEnable(GL_LIGHT0)
+        glLightfv(GL_LIGHT0, GL_POSITION, [0.0, 0.0, 1.0, 0.0])
+        glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, [0.0, 0.0, -1.0])
+        glLightfv(GL_LIGHT0, GL_SPOT_CUTOFF, 90.0)
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, [0.5, 0.5, 0.5, 1.0])
+        glLightfv(GL_LIGHT0, GL_SPECULAR, [0.5, 0.5, 0.5, 1.0])
+        glLightfv(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0)
+        glLightfv(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0)
+        glLightfv(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0)
+
+        glBegin(GL_LINES)
+        glColor([1.0, 0.0, 0.0, 1.0])
+        glVertex([-1.000, 0.0, 0.0])
+        glVertex([1.618, 0.0, 0.0])
+        glColor([0.0, 1.0, 0.0, 1.0])
+        glVertex([0.0, -1.000, 0.0])
+        glVertex([0.0, 1.618, 0.0])
+        glColor([0.0, 0.0, 1.0, 1.0])
+        glVertex([0.0, 0.0, -1.000])
+        glVertex([0.0, 0.0, 1.618])
+        glEnd()
+
+        glRotated(self._angle_x, 1.0, 0.0, 0.0)
+        glRotated(self._angle_y, 0.0, 1.0, 0.0)
+        glRotated(self._angle_z, 0.0, 0.0, 1.0)
+
+        self._model.rendering()
+
+        glutSwapBuffers()
+
         return
 
     def reshape(self, width, height):
