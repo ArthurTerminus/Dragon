@@ -42,6 +42,12 @@ class OpenGLModel(object):
 
         return OpenGLView
 
+    def default_window_title(self):
+        """OpenGLウィンドウのタイトル(ラベル)を応答する。"""
+        if TRACE: print __name__, self.default_window_title.__doc__
+
+        return "Untitled"
+
     def display_list(self):
         """OpenGLモデルのディスプレイリスト(表示物をコンパイルしたOpenGLコマンド列)を応答する。"""
         if TRACE: print __name__, self.display_list.__doc__
@@ -64,8 +70,6 @@ class OpenGLModel(object):
         view_class = self.default_view_class()
         self._view = view_class(self)
 
-        glutMainLoop()
-
         return
 
     def rendering(self):
@@ -78,7 +82,19 @@ class OpenGLModel(object):
 
 
 class OpenGLView(object):
-    """OpenGLビュー。"""
+    """ビュー。"""
+
+    window_postion = [100, 100]
+
+    @classmethod
+    def get_window_postion(a_class):
+        """ウィンドウを開くための位置を応答する。"""
+        if TRACE: print __name__, a_class.get_window_postion.__doc__
+
+        current_position = a_class.window_postion
+        a_class.window_postion = map((lambda value: value + 30), a_class.window_postion)
+
+        return current_position
 
     def __init__(self, a_model):
         """OpenGLビューのコンストラクタ。"""
@@ -95,9 +111,9 @@ class OpenGLView(object):
 
         glutInit(sys.argv)
         glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
-        glutInitWindowPosition(100, 100)
-        glutInitWindowSize(self._width, self._height);
-        glutCreateWindow("Dragon")
+        glutInitWindowPosition(*OpenGLView.get_window_postion())
+        glutInitWindowSize(self._width, self._height)
+        glutCreateWindow(self._model.default_window_title())
 
         glutDisplayFunc(self.display)
         glutReshapeFunc(self.reshape)
@@ -199,7 +215,7 @@ class OpenGLController(object):
     """OpenGLコントローラ。"""
 
     def __init__(self, a_view):
-        """OpenGLコントローラのコンストラクタ。"""
+        """コントローラのコンストラクタ。"""
         if TRACE: print __name__, self.__init__.__doc__
 
         self._model = a_view._model
@@ -315,6 +331,48 @@ class OpenGLTriangle(object):
         return
 
 
+class OpenGLPolygon(object):
+    """OpenGL多角形。"""
+
+    def __init__(self, vertexes, rgb):
+        """OpenGL多角形のコンストラクタ。"""
+        if DEBUG: print __name__, self.__init__.__doc__
+
+        self._vertexes = vertexes
+        self._rgb = rgb
+
+        x = 0.0
+        y = 0.0
+        z = 0.0
+        length = len(vertexes)
+        for i in range(0, length):
+            j = (i + 1) % length
+            k = (i + 2) % length
+            ux, uy, uz = map((lambda each1, each2: each1 - each2), vertexes[j], vertexes[i])
+            vx, vy, vz = map((lambda each1, each2: each1 - each2), vertexes[k], vertexes[j])
+            x = x + (uy * vz - uz * vy)
+            y = y + (uz * vx - ux * vz)
+            z = z + (ux * vy - uy * vx)
+        normal_vector = [x, y, z]
+        distance = sum(map((lambda each: each * each), normal_vector)) ** 0.5
+        self._normal_unit_vector = map((lambda vector: vector / distance), normal_vector)
+
+        return
+
+    def rendering(self):
+        """OpenGL多角形をレンダリングする。"""
+        if DEBUG: print __name__, self.rendering.__doc__
+
+        glColor4d(self._rgb[0], self._rgb[1], self._rgb[2], 1.0)
+        glBegin(GL_POLYGON)
+        glNormal3fv(self._normal_unit_vector)
+        for vertex in self._vertexes:
+            glVertex3fv(vertex)
+        glEnd()
+
+        return
+
+
 class DragonModel(OpenGLModel):
     """ドラゴンのモデル。"""
 
@@ -363,6 +421,70 @@ class DragonModel(OpenGLModel):
 
         return
 
+    def default_window_title(self):
+        """ドラゴンのウィンドウのタイトル(ラベル)を応答する。"""
+        if TRACE: print __name__, self.default_window_title.__doc__
+
+        return "Dragon"
+
+
+class WaspModel(OpenGLModel):
+    """スズメバチのモデル。"""
+
+    def __init__(self):
+        """スズメバチのモデルのコンストラクタ。"""
+        if TRACE: print __name__, self.__init__.__doc__
+
+        super(WaspModel, self).__init__()
+        self._eye_point = [-5.5852450791872, 3.07847342734, 15.794105252496]
+        self._sight_point = [0.19825005531311, 1.8530999422073, -0.63795006275177]
+        self._up_vector = [0.070077999093727, 0.99630606032682, -0.049631725731267]
+        self._fovy = self._default_fovy = 41.480099231656
+
+        filename = os.path.join(os.getcwd(), 'wasp.txt')
+        if os.path.exists(filename) and os.path.isfile(filename):
+            pass
+        else:
+            url = 'http://www.cc.kyoto-su.ac.jp/~atsushi/Programs/Wasp/wasp.txt'
+            urllib.urlretrieve(url, filename)
+
+        with open(filename, "rU") as a_file:
+            while True:
+                a_string = a_file.readline()
+                if len(a_string) == 0: break
+                a_list = a_string.split()
+                if len(a_list) == 0: continue
+                first_string = a_list[0]
+                if first_string == "number_of_vertexes":
+                    number_of_vertexes = int(a_list[1])
+                if first_string == "number_of_polygons":
+                    number_of_polygons = int(a_list[1])
+                if first_string == "end_header":
+                    get_tokens = (lambda file: file.readline().split())
+                    collection_of_vertexes = []
+                    for n_th in range(number_of_vertexes):
+                        a_list = get_tokens(a_file)
+                        a_vertex = map(float, a_list[0:3])
+                        collection_of_vertexes.append(a_vertex)
+                    index_to_vertex = (lambda index: collection_of_vertexes[index - 1])
+                    for n_th in range(number_of_polygons):
+                        a_list = get_tokens(a_file)
+                        number_of_indexes = int(a_list[0])
+                        index = number_of_indexes + 1
+                        indexes = map(int, a_list[1:index])
+                        vertexes = map(index_to_vertex, indexes)
+                        rgb_color = map(float, a_list[index:index + 3])
+                        a_polygon = OpenGLPolygon(vertexes, rgb_color)
+                        self._display_object.append(a_polygon)
+
+        return
+
+    def default_window_title(self):
+        """スズメバチのウィンドウのタイトル(ラベル)を応答する。"""
+        if TRACE: print __name__, self.default_window_title.__doc__
+
+        return "Wasp"
+
 
 def main():
     """OpenGL立体データを読み込んで描画する。"""
@@ -370,6 +492,11 @@ def main():
 
     a_model = DragonModel()
     a_model.open()
+
+    a_model = WaspModel()
+    a_model.open()
+
+    glutMainLoop()
 
     return 0
 
