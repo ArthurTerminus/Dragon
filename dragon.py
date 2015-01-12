@@ -40,7 +40,17 @@ class DragonModel(object):
                 a_string = a_file.readline()
                 if len(a_string) == 0: break
                 a_list = a_string.split()
-                print a_list
+                if len(a_list) == 0: continue
+                first_string = a_list[0]
+                if first_string == "number_of_vertexes":
+                      number_of_vertexes = 0
+                if first_string == "number_of_triangles":
+                    number_of_triangles = 0
+                if first_string == "end_header":
+                    for n_th in range(number_of_vertexes):
+                        pass
+                    for n_th in range(number_of_triangles):
+                        pass
 
         return
 
