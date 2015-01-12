@@ -121,6 +121,27 @@ class DragonController(object):
         """キーボードを処理する。"""
         if TRACE: print __name__, self.keyboard.__doc__
 
+        if key in "qQ\33":
+            sys.exit(0)
+        if key == 'r' or key == 'R':
+            self._view._angle_x = 0.0
+            self._view._angle_y = 0.0
+            self._view._angle_z = 0.0
+        if key == 'x':
+            self._view._angle_x += 1.0
+        if key == 'y':
+            self._view._angle_y += 1.0
+        if key == 'z':
+            self._view._angle_z += 1.0
+        if key == 'X':
+            self._view._angle_x -= 1.0
+        if key == 'Y':
+            self._view._angle_y -= 1.0
+        if key == 'Z':
+            self._view._angle_z -= 1.0
+
+        glutPostRedisplay()
+
         return
 
     def motion(self, x, y):
@@ -162,6 +183,7 @@ def main():
 
     a_model = DragonModel()
     a_model.open()
+
     return 0
 
 
