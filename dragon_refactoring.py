@@ -1,0 +1,378 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys
+import os
+import urllib
+
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL.GLUT import *
+
+TRACE = True
+DEBUG = False
+
+
+class OpenGLModel(object):
+    """OpenGLモデル。"""
+
+    def __init__(self):
+        """OpenGLモデルのコンストラクタ。"""
+        if TRACE: print __name__, self.__init__.__doc__
+
+        self._display_object = []
+        self._eye_point = None
+        self._sight_point = None
+        self._up_vector = None
+        self._fovy = self._default_fovy = None
+        self._display_list = None
+        self._view = None
+
+        return
+
+    def default_controllerew_class(self):
+        """OpenGLモデルを表示するデフォルトのビューのクラスを応答する。"""
+        if TRACE: print __name__, self.default_controllerew_class.__doc__
+
+        return OpenGLController
+
+    def default_view_class(self):
+        """OpenGLモデルを表示するデフォルトのビューのクラスを応答する。"""
+        if TRACE: print __name__, self.default_view_class.__doc__
+
+        return OpenGLView
+
+    def display_list(self):
+        """OpenGLモデルのディスプレイリスト(表示物をコンパイルしたOpenGLコマンド列)を応答する。"""
+        if TRACE: print __name__, self.display_list.__doc__
+
+        if self._display_list == None:
+            self._display_list = glGenLists(1)
+            glNewList(self._display_list, GL_COMPILE)
+            glColor4d(0.5, 0.5, 1.0, 1.0)
+            for index, each in enumerate(self._display_object):
+                if DEBUG: print index,
+                each.rendering()
+            glEndList()
+
+        return self._display_list
+
+    def open(self):
+        """OpenGLモデルを描画するためのOpenGLのウィンドウを開く。"""
+        if TRACE: print __name__, self.open.__doc__
+
+        view_class = self.default_view_class()
+        self._view = view_class(self)
+
+        glutMainLoop()
+
+        return
+
+    def rendering(self):
+        """OpenGLモデルをレンダリングする。"""
+        if TRACE: print __name__, self.rendering.__doc__
+
+        glCallList(self.display_list())
+
+        return
+
+
+class OpenGLView(object):
+    """OpenGLビュー。"""
+
+    def __init__(self, a_model):
+        """OpenGLビューのコンストラクタ。"""
+        if TRACE: print __name__, self.__init__.__doc__
+
+        self._model = a_model
+        controller_class = self._model.default_controllerew_class()
+        self._controller = controller_class(self)
+        self._angle_x = 0.0
+        self._angle_y = 0.0
+        self._angle_z = 0.0
+        self._width = 400
+        self._height = 400
+
+        glutInit(sys.argv)
+        glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
+        glutInitWindowPosition(100, 100)
+        glutInitWindowSize(self._width, self._height);
+        glutCreateWindow("Dragon")
+
+        glutDisplayFunc(self.display)
+        glutReshapeFunc(self.reshape)
+        glutKeyboardFunc(self._controller.keyboard)
+        glutMouseFunc(self._controller.mouse)
+        glutMotionFunc(self._controller.motion)
+        glutWMCloseFunc(self._controller.close)
+
+        glEnable(GL_COLOR_MATERIAL)
+        glEnable(GL_DEPTH_TEST)
+        glDisable(GL_CULL_FACE)
+        glEnable(GL_NORMALIZE)
+
+        return
+
+    def display(self):
+        """OpenGLで描画する。"""
+        if TRACE: print __name__, self.display.__doc__
+
+        eye_point = self._model._eye_point
+        sight_point = self._model._sight_point
+        up_vector = self._model._up_vector
+        fovy = self._model._fovy
+
+        aspect = float(self._width) / float(self._height)
+        near = 0.01
+        far = 100.0
+
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        gluPerspective(fovy, aspect, near, far)
+
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        gluLookAt(eye_point[0], eye_point[1], eye_point[2],
+                  sight_point[0], sight_point[1], sight_point[2],
+                  up_vector[0], up_vector[1], up_vector[2])
+
+        glClearColor(1.0, 1.0, 1.0, 1.0)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        glEnable(GL_LIGHTING)
+        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, [0.5, 0.5, 0.5, 1.0])
+        glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 0.0)
+        glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1.0)
+        glEnable(GL_LIGHT0)
+        glLightfv(GL_LIGHT0, GL_POSITION, [0.0, 0.0, 1.0, 0.0])
+        glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, [0.0, 0.0, -1.0])
+        glLightfv(GL_LIGHT0, GL_SPOT_CUTOFF, 90.0)
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, [0.5, 0.5, 0.5, 1.0])
+        glLightfv(GL_LIGHT0, GL_SPECULAR, [0.5, 0.5, 0.5, 1.0])
+        glLightfv(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0)
+        glLightfv(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0)
+        glLightfv(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0)
+
+        self.display_axes()
+
+        glRotated(self._angle_x, 1.0, 0.0, 0.0)
+        glRotated(self._angle_y, 0.0, 1.0, 0.0)
+        glRotated(self._angle_z, 0.0, 0.0, 1.0)
+
+        self._model.rendering()
+
+        glutSwapBuffers()
+
+        return
+
+    def display_axes(self):
+        """世界座標系を描画する。"""
+        if TRACE: print __name__, self.display_axes.__doc__
+
+        glBegin(GL_LINES)
+        glColor([1.0, 0.0, 0.0, 1.0])
+        glVertex([-1.000, 0.0, 0.0])
+        glVertex([1.618, 0.0, 0.0])
+        glColor([0.0, 1.0, 0.0, 1.0])
+        glVertex([0.0, -1.000, 0.0])
+        glVertex([0.0, 1.618, 0.0])
+        glColor([0.0, 0.0, 1.0, 1.0])
+        glVertex([0.0, 0.0, -1.000])
+        glVertex([0.0, 0.0, 1.618])
+        glEnd()
+
+        return
+
+    def reshape(self, width, height):
+        """OpenGLを再形成する。"""
+        if TRACE: print __name__, self.reshape.__doc__
+
+        self._width = width
+        self._height = height
+
+        glViewport(0, 0, width, height)
+
+        return
+
+
+class OpenGLController(object):
+    """OpenGLコントローラ。"""
+
+    def __init__(self, a_view):
+        """OpenGLコントローラのコンストラクタ。"""
+        if TRACE: print __name__, self.__init__.__doc__
+
+        self._model = a_view._model
+        self._view = a_view
+
+        return
+
+    def close(self):
+        """ウィンドウを閉じる際の処理をする。"""
+        if TRACE: print __name__, self.close.__doc__
+
+        sys.exit(0)
+
+        return
+
+    def keyboard(self, key, x, y):
+        """キーボードを処理する。"""
+        if TRACE: print __name__, self.keyboard.__doc__
+
+        if key in "qQ\33":
+            sys.exit(0)
+        if key == 'r' or key == 'R':
+            self._view._angle_x = 0.0
+            self._view._angle_y = 0.0
+            self._view._angle_z = 0.0
+            self._model._fovy = self._model._default_fovy
+        if key == 'x':
+            self._view._angle_x += 1.0
+        if key == 'y':
+            self._view._angle_y += 1.0
+        if key == 'z':
+            self._view._angle_z += 1.0
+        if key == 'X':
+            self._view._angle_x -= 1.0
+        if key == 'Y':
+            self._view._angle_y -= 1.0
+        if key == 'Z':
+            self._view._angle_z -= 1.0
+        if key == 's':
+            self._model._fovy += 1.0
+        if key == 'S':
+            self._model._fovy -= 1.0
+
+        glutPostRedisplay()
+
+        return
+
+    def motion(self, x, y):
+        """マウスボタンを押下しながらの移動を処理する。"""
+        if TRACE: print __name__, self.motion.__doc__
+
+        print "motion at (" + str(x) + ", " + str(y) + ")"
+
+        return
+
+    def mouse(self, button, state, x, y):
+        """マウスボタンを処理する。"""
+        if TRACE: print __name__, self.mouse.__doc__
+
+        if button == GLUT_LEFT_BUTTON:
+            print "left",
+        elif button == GLUT_MIDDLE_BUTTON:
+            print "middle"
+        elif button == GLUT_RIGHT_BUTTON:
+            print "right",
+        else:
+            pass
+
+        print "button is",
+
+        if state == GLUT_DOWN:
+            print "down",
+        elif state == GLUT_UP:
+            print "up",
+        else:
+            pass
+
+        print "at (" + str(x) + ", " + str(y) + ")"
+
+        return
+
+
+class OpenGLTriangle(object):
+    """OpenGL三角形。"""
+
+    def __init__(self, vertex1, vertex2, vertex3):
+        """OpenGL三角形のコンストラクタ。"""
+        if DEBUG: print __name__, self.__init__.__doc__
+
+        self._vertex1 = vertex1
+        self._vertex2 = vertex2
+        self._vertex3 = vertex3
+
+        ux, uy, uz = map((lambda value1, value0: value1 - value0), vertex2, vertex1)
+        vx, vy, vz = map((lambda value1, value0: value1 - value0), vertex3, vertex1)
+        normal_vector = [(uy * vz - uz * vy), (uz * vx - ux * vz), (ux * vy - uy * vx)]
+        distance = sum(map((lambda value: value * value), normal_vector)) ** 0.5
+        self._normal_unit_vector = map((lambda vector: vector / distance), normal_vector)
+
+        return
+
+    def rendering(self):
+        """OpenGL三角形をレンダリングする。"""
+        if DEBUG: print __name__, self.rendering.__doc__
+
+        glBegin(GL_TRIANGLES)
+        glNormal3fv(self._normal_unit_vector)
+        glVertex3fv(self._vertex1)
+        glVertex3fv(self._vertex2)
+        glVertex3fv(self._vertex3)
+        glEnd()
+
+        return
+
+
+class DragonModel(OpenGLModel):
+    """ドラゴンのモデル。"""
+
+    def __init__(self):
+        """ドラゴンのモデルのコンストラクタ。"""
+        if TRACE: print __name__, self.__init__.__doc__
+
+        super(DragonModel, self).__init__()
+        self._eye_point = [-5.5852450791872, 3.07847342734, 15.794105252496]
+        self._sight_point = [0.27455347776413, 0.20096999406815, -0.11261999607086]
+        self._up_vector = [0.1018574904194, 0.98480906061847, -0.14062775604137]
+        self._fovy = self._default_fovy = 12.642721790235
+
+        filename = os.path.join(os.getcwd(), 'dragon.txt')
+        if os.path.exists(filename) and os.path.isfile(filename):
+            pass
+        else:
+            url = 'http://www.cc.kyoto-su.ac.jp/~atsushi/Programs/Dragon/dragon.txt'
+            urllib.urlretrieve(url, filename)
+
+        with open(filename, "rU") as a_file:
+            while True:
+                a_string = a_file.readline()
+                if len(a_string) == 0: break
+                a_list = a_string.split()
+                if len(a_list) == 0: continue
+                first_string = a_list[0]
+                if first_string == "number_of_vertexes":
+                    number_of_vertexes = int(a_list[1])
+                if first_string == "number_of_triangles":
+                    number_of_triangles = int(a_list[1])
+                if first_string == "end_header":
+                    get_tokens = (lambda file: file.readline().split())
+                    collection_of_vertexes = []
+                    for n_th in range(number_of_vertexes):
+                        a_list = get_tokens(a_file)
+                        a_vertex = map(float, a_list[0:3])
+                        collection_of_vertexes.append(a_vertex)
+                    index_to_vertex = (lambda index: collection_of_vertexes[index - 1])
+                    for n_th in range(number_of_triangles):
+                        a_list = get_tokens(a_file)
+                        indexes = map(int, a_list[0:3])
+                        vertexes = map(index_to_vertex, indexes)
+                        a_tringle = OpenGLTriangle(*vertexes)
+                        self._display_object.append(a_tringle)
+
+        return
+
+
+def main():
+    """OpenGL立体データを読み込んで描画する。"""
+    if TRACE: print __name__, main.__doc__
+
+    a_model = DragonModel()
+    a_model.open()
+
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
