@@ -12,6 +12,26 @@ from OpenGL.GLUT import *
 TRACE = True
 DEBUG = False
 
+class DragonModel(object):
+    """ドラゴンのモデル。"""
+
+    pass
+
+class DragonView(object):
+    """ドラゴンのビュー。"""
+
+    pass
+
+class DragonController(object):
+    """ドラゴンのコントローラ。"""
+
+    pass
+
+class DragonTriangle(object):
+    """ドラゴンの三角形。"""
+
+    pass
+
 def main():
     """ドラゴンの立体データを読み込んで描画する。"""
     if TRACE: print __name__, main.__doc__
